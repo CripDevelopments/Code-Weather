@@ -1,0 +1,72 @@
+.location-prompt {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: rgba(0,0,0,0.65);
+    backdrop-filter: blur(10px);
+    z-index: 999;
+}
+
+.location-prompt.hidden {
+    display: none;
+}
+
+.prompt-box {
+    width: 320px;
+    padding: 20px;
+    border-radius: 14px;
+
+    background: rgba(10, 15, 30, 0.9);
+    border: 1px solid rgba(0,255,255,0.25);
+    box-shadow: 0 0 30px rgba(0,255,255,0.1);
+
+    text-align: center;
+    color: #e6f1ff;
+}
+
+.prompt-title {
+    font-size: 14px;
+    color: #00f5ff;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.prompt-text {
+    font-size: 13px;
+    color: #7aa2ff;
+    margin-bottom: 15px;
+}
+
+.prompt-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.prompt-buttons button {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+#allowLocation {
+    background: linear-gradient(135deg,#00f5ff,#7c4dff);
+    color: #000;
+}
+
+#denyLocation {
+    background: rgba(255,255,255,0.1);
+    color: #e6f1ff;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.prompt-footer {
+    margin-top: 10px;
+    font-size: 10px;
+    opacity: 0.6;
+}

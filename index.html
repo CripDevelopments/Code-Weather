@@ -1,46 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Code Weather | Code Master</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="apple-touch-icon" id="icon1">
-    <link rel="shortcut icon" id="icon2" type="image/png">
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+<meta charset="UTF-8">
+<title>Crip Weather</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+<link rel="stylesheet" href="css/main.css">
 </head>
 <body>
-    <div class="welcome">
-        <p id="welcomeText"></p>
+
+<div class="grid-overlay"></div>
+
+<div class="app">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+        <div class="logo-section">
+            <h1><img src="assets/favicon.ico" alt="Crip Weather"> CRIP WEATHER</h1>
+            <p>CLIMATE TERMINAL</p>
+        </div>
+
+        <div class="search-box">
+            <input type="text" id="cityInput" placeholder="Search for a city...">
+            <button id="searchBtn"><i class="fas fa-search"></i></button>
+        </div>
+
+        <div class="time-display">
+            <div class="day" id="dayDisplay"></div>
+            <div class="date" id="dateDisplay"></div>
+            <div class="time" id="timeDisplay"></div>
+        </div>
     </div>
-    <div class="bk hidden">
-    <div class="weather-app">
-        <header>
-            <img id="main-logo" alt="Code Weather" class="logo">           
-            <h1>Code Weather<p>Where Code Meets Climate</p></h1>
-            <div class="line"></div>
-        </header>
-        <main>
-            <div class="search-container">
-                <div class="search-input-wrapper">
-                    <input type="search" id="city-input" placeholder="Search for a place">
-                    <button id="search-btn" class="search-btn"><i class="fas fa-search"></i></button>
+
+    <!-- Main content -->
+    <div class="content-grid">
+
+        <!-- Current Weather -->
+        <div class="weather-card">
+            <h2 class="card-title">CURRENT WEATHER</h2>
+            <div class="location" id="location">--</div>
+
+            <div class="temp-main" id="currentTemp">--°C</div>
+            <div class="condition" id="currentCondition">--</div>
+
+            <div class="current-details">
+                <div class="detail-item">
+                    <i class="fas fa-tint"></i>
+                    <div>
+                        <div>Humidity</div>
+                        <div id="humidity">--%</div>
+                    </div>
                 </div>
-                <button id="search-btn2" class="search-btn">
-                    <i class="fas fa-location-arrow"></i>
-                    <span class="hidden-text"> Use my current location</span>
-                </button>
+                <div class="detail-item">
+                    <i class="fas fa-wind"></i>
+                    <div>
+                        <div>Wind Speed</div>
+                        <div id="windSpeed">-- km/h</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-eye"></i>
+                    <div>
+                        <div>Visibility</div>
+                        <div id="visibility">-- km</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-compress-arrows-alt"></i>
+                    <div>
+                        <div>Pressure</div>
+                        <div id="pressure">-- hPa</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-thermometer-half"></i>
+                    <div>
+                        <div>Feels Like</div>
+                        <div id="feelsLike">--°C</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <i class="fas fa-cloud"></i>
+                    <div>
+                        <div>Cloud Cover</div>
+                        <div id="cloudCover">--%</div>
+                    </div>
+                </div>
             </div>
-            <div id="weather-info" class="weather-info">
-                <!-- Weather information will be dynamically added here -->
+
+            <div class="sun-times">
+                <div class="sun-block">
+                    <i class="fas fa-sun"></i>
+                    <div class="label">SUNRISE</div>
+                    <div class="value" id="sunrise">--:--</div>
+                </div>
+                <div class="sun-block">
+                    <i class="fas fa-moon"></i>
+                    <div class="label">SUNSET</div>
+                    <div class="value" id="sunset">--:--</div>
+                </div>
             </div>
-        </main>
-        <footer>
-            <div class="currentTime" id="currentTime"></div>
-            ©<span id="currentYear"></span> <a href="http://www.codemaster.ltd">Code Master</a> All rights reserved.
-            <div id="version"></div>
-        </footer>
+        </div>
+
+        <!-- 5 Day Forecast -->
+        <div class="weather-card">
+            <h2 class="card-title">5 DAY FORECAST</h2>
+            <table class="forecast-table">
+                <thead>
+                    <tr>
+                        <th>DAY</th>
+                        <th>CONDITION</th>
+                        <th>TEMP</th>
+                        <th>SUNRISE</th>
+                        <th>SUNSET</th>
+                    </tr>
+                </thead>
+                <tbody id="forecastBody">
+                </tbody>
+            </table>
+        </div>
+
     </div>
-    <script src="script.js"></script>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div>© <span id="year"></span> Crip Developments<br>All rights reserved</div>
+        <div>VERSION 2.0.0</div>
+        <div>DATA BY OPEN-METEO <i class="fas fa-chart-line"></i></div>
+    </div>
+
+</div>
+
+<div id="locationPrompt" class="location-prompt hidden">
+    <div class="prompt-box">
+        <div class="prompt-title">📡 SATELLITE LOCATION REQUEST</div>
+        <div class="prompt-text">
+            Enable GPS tracking for automatic weather detection?
+        </div>
+
+        <div class="prompt-buttons">
+            <button id="allowLocation">ALLOW</button>
+            <button id="denyLocation">DENY</button>
+        </div>
+
+        <div class="prompt-footer">
+            Secure geolocation • Used only for weather mapping
+        </div>
+    </div>
+</div>
+
+<script src="js/main.js" type="module"></script>
+
 </body>
 </html>
