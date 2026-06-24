@@ -2,134 +2,168 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Crip Weather</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crip Weather 2080</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#050a14">
 <link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon.svg">
+<link rel="manifest" href="manifest.webmanifest">
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 <link rel="stylesheet" href="css/main.css">
 </head>
 <body>
 
 <div class="grid-overlay"></div>
+<div class="glow-overlay"></div>
 
 <div class="app">
 
-    <!-- Top bar -->
-    <div class="top-bar">
+    <header class="top-bar">
         <div class="logo-section">
-            <h1><img src="assets/favicon.ico" alt="Crip Weather"> CRIP WEATHER</h1>
+            <h1><i class="fas fa-bolt logo-icon"></i> CRIP WEATHER 2080</h1>
             <p>CLIMATE TERMINAL</p>
         </div>
 
         <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
             <input type="text" id="cityInput" placeholder="Search for a city...">
-            <button id="searchBtn"><i class="fas fa-search"></i></button>
+            <button id="searchBtn" aria-label="Search"><i class="fas fa-search"></i></button>
         </div>
 
         <div class="time-display">
-            <div class="day" id="dayDisplay"></div>
             <div class="date" id="dateDisplay"></div>
             <div class="time" id="timeDisplay"></div>
+            <div class="day" id="dayDisplay"></div>
         </div>
-    </div>
+    </header>
 
-    <!-- Main content -->
     <div class="content-grid">
 
-        <!-- Current Weather -->
         <div class="weather-card">
             <h2 class="card-title">CURRENT WEATHER</h2>
             <div class="location" id="location">--</div>
 
-            <div class="temp-main" id="currentTemp">--°C</div>
+            <div class="weather-hero">
+                <div class="temp-main" id="currentTemp">--°C</div>
+                <div class="weather-icon-lg" id="currentWeatherIcon">
+                    <i class="fas fa-cloud-sun"></i>
+                </div>
+            </div>
             <div class="condition" id="currentCondition">--</div>
 
             <div class="current-details">
                 <div class="detail-item">
                     <i class="fas fa-tint"></i>
                     <div>
-                        <div>Humidity</div>
-                        <div id="humidity">--%</div>
+                        <div class="detail-label">Humidity</div>
+                        <div class="detail-value" id="humidity">--%</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-wind"></i>
                     <div>
-                        <div>Wind Speed</div>
-                        <div id="windSpeed">-- km/h</div>
+                        <div class="detail-label">Wind Speed</div>
+                        <div class="detail-value" id="windSpeed">-- km/h</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-eye"></i>
                     <div>
-                        <div>Visibility</div>
-                        <div id="visibility">-- km</div>
+                        <div class="detail-label">Visibility</div>
+                        <div class="detail-value" id="visibility">-- km</div>
                     </div>
                 </div>
                 <div class="detail-item">
-                    <i class="fas fa-compress-arrows-alt"></i>
+                    <i class="fas fa-tachometer-alt"></i>
                     <div>
-                        <div>Pressure</div>
-                        <div id="pressure">-- hPa</div>
+                        <div class="detail-label">Pressure</div>
+                        <div class="detail-value" id="pressure">-- hPa</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-thermometer-half"></i>
                     <div>
-                        <div>Feels Like</div>
-                        <div id="feelsLike">--°C</div>
+                        <div class="detail-label">Feels Like</div>
+                        <div class="detail-value" id="feelsLike">--°C</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-cloud"></i>
                     <div>
-                        <div>Cloud Cover</div>
-                        <div id="cloudCover">--%</div>
+                        <div class="detail-label">Cloud Cover</div>
+                        <div class="detail-value" id="cloudCover">--%</div>
                     </div>
                 </div>
             </div>
 
             <div class="sun-times">
-                <div class="sun-block">
-                    <i class="fas fa-sun"></i>
+                <div class="sun-block sunrise-block">
+                    <div class="sun-visual"><i class="fas fa-sun"></i></div>
                     <div class="label">SUNRISE</div>
                     <div class="value" id="sunrise">--:--</div>
                 </div>
-                <div class="sun-block">
-                    <i class="fas fa-moon"></i>
+                <div class="sun-block sunset-block">
+                    <div class="sun-visual"><i class="fas fa-sun"></i></div>
                     <div class="label">SUNSET</div>
                     <div class="value" id="sunset">--:--</div>
                 </div>
             </div>
         </div>
 
-        <!-- 5 Day Forecast -->
-        <div class="weather-card">
+        <div class="weather-card forecast-card">
             <h2 class="card-title">5 DAY FORECAST</h2>
-            <table class="forecast-table">
-                <thead>
-                    <tr>
-                        <th>DAY</th>
-                        <th>CONDITION</th>
-                        <th>TEMP</th>
-                        <th>SUNRISE</th>
-                        <th>SUNSET</th>
-                    </tr>
-                </thead>
-                <tbody id="forecastBody">
-                </tbody>
-            </table>
+            <div class="forecast-wrapper">
+                <table class="forecast-table">
+                    <thead>
+                        <tr>
+                            <th>DAY</th>
+                            <th>CONDITION</th>
+                            <th>TEMP</th>
+                            <th>SUNRISE</th>
+                            <th>SUNSET</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecastBody">
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
-    <!-- Footer -->
-    <div class="footer">
-        <div>© <span id="year"></span> Crip Developments<br>All rights reserved</div>
-        <div>VERSION 2.0.0</div>
-        <div>DATA BY OPEN-METEO <i class="fas fa-chart-line"></i></div>
-    </div>
+    <section class="install-panel" id="installPanel">
+        <p class="install-tag">ALWAYS FREE · HOSTED ONLINE</p>
+        <p class="install-desc">
+            Use Crip Weather in your browser anytime. Optionally download it to your phone or PC for free — no app store, no payment.
+        </p>
+        <div class="app-actions">
+            <button id="installBtn" class="action-btn action-btn-primary hidden" type="button">
+                <i class="fas fa-download"></i> Download Free
+            </button>
+            <button id="installHelpBtn" class="action-btn" type="button">
+                <i class="fas fa-mobile-alt"></i> Install Guide
+            </button>
+            <button id="notifyBtn" class="action-btn" type="button">
+                <i class="fas fa-bell-slash"></i> Enable Alerts
+            </button>
+        </div>
+        <div class="install-guide hidden" id="installGuide">
+            <p><strong>Phone (Android / Chrome):</strong> Tap <em>Download Free</em>, or open the browser menu → <em>Install app</em> / <em>Add to Home screen</em>.</p>
+            <p><strong>iPhone (Safari):</strong> Tap Share → <em>Add to Home Screen</em>. The website stays online — this just adds a free shortcut.</p>
+            <p><strong>PC (Chrome / Edge):</strong> Click <em>Download Free</em>, or use the install icon in the address bar (⊕ or computer icon).</p>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="footer-copy">© <span id="year"></span> Crip Developments<br>All rights reserved</div>
+        <div class="footer-version">VERSION 2.0.0</div>
+        <div class="footer-data">DATA BY OPEN-METEO <i class="fas fa-chart-bar"></i></div>
+    </footer>
 
 </div>
 

@@ -1,0 +1,33 @@
+{
+  "name": "Crip Weather 2080",
+  "short_name": "Crip Weather",
+  "description": "Free climate terminal weather dashboard — use online or install to your device at no cost",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#050a14",
+  "theme_color": "#050a14",
+  "categories": ["weather", "utilities"],
+  "icons": [
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search weather",
+      "url": "./",
+      "description": "Open climate terminal"
+    }
+  ]
+}

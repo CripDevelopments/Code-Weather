@@ -14,13 +14,15 @@
 }
 
 .prompt-box {
-    width: 320px;
+    width: min(320px, calc(100vw - 32px));
+    margin: 0 16px;
     padding: 20px;
     border-radius: 14px;
 
-    background: rgba(10, 15, 30, 0.9);
-    border: 1px solid rgba(0,255,255,0.25);
-    box-shadow: 0 0 30px rgba(0,255,255,0.1);
+    background: rgba(6, 18, 42, 0.95);
+    border: 1px solid rgba(0, 212, 255, 0.3);
+    box-shadow: 0 0 40px rgba(0, 180, 255, 0.12);
+    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
 
     text-align: center;
     color: #e6f1ff;
@@ -28,7 +30,7 @@
 
 .prompt-title {
     font-size: 14px;
-    color: #00f5ff;
+    color: #00d4ff;
     margin-bottom: 10px;
     letter-spacing: 1px;
 }
@@ -47,7 +49,8 @@
 
 .prompt-buttons button {
     flex: 1;
-    padding: 8px;
+    padding: 12px 8px;
+    min-height: 44px;
     border: none;
     cursor: pointer;
     font-weight: bold;
@@ -55,8 +58,8 @@
 }
 
 #allowLocation {
-    background: linear-gradient(135deg,#00f5ff,#7c4dff);
-    color: #000;
+    background: #00d4ff;
+    color: #041018;
 }
 
 #denyLocation {
