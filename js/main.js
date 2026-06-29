@@ -14,11 +14,32 @@ import {
     setPrefs
 } from "./locations.js";
 import {
+    formatVisibility,
+    formatWind,
+    getUnitBadge,
+    getUnitToggleLabel,
+    toggleUnitSystem
+} from "./units.js";
+import {
     getActiveLocation as getWatchTarget,
     initPwa,
     setActiveLocation as setWatchTarget,
     updateWatchLocation
 } from "./pwa.js";
+
+let lastWeatherSnapshot = null;
+
+function updateUnitToggleUi() {
+    const label = document.getElementById("unitToggleLabel");
+    const btn = document.getElementById("unitToggle");
+    if (label) label.textContent = getUnitBadge();
+    if (btn) btn.title = getUnitToggleLabel();
+}
+
+function applyWindVisibilityUnits(current) {
+    document.getElementById("windSpeed").textContent = formatWind(current.wind_speed_10m);
+    document.getElementById("visibility").textContent = formatVisibility(current.visibility);
+}
 
 function getSuffix(day) {
     if (day >= 11 && day <= 13) return "th";
@@ -46,7 +67,7 @@ function updateTime() {
 updateTime();
 setInterval(updateTime, 1000);
 
-function renderWeather(location, weather) {
+async function renderWeather(location, weather) {
     const current = weather.current;
     const daily = weather.daily;
     const weatherNow = getWeatherInfo(current.weather_code);
@@ -56,11 +77,11 @@ function renderWeather(location, weather) {
         `<i class="fas fa-map-marker-alt"></i> ${location.name}, ${location.country} <i class="fas fa-map-marker-alt"></i>`;
 
     document.getElementById("currentTemp").textContent = `${Math.round(current.temperature_2m)}°C`;
-    renderWeatherVisual(document.getElementById("currentWeatherIcon"), visual.type);
+    await renderWeatherVisual(document.getElementById("currentWeatherIcon"), visual.type);
     document.getElementById("currentCondition").textContent = weatherNow.label;
     document.getElementById("humidity").textContent = `${current.relative_humidity_2m}%`;
-    document.getElementById("windSpeed").textContent = `${current.wind_speed_10m} km/h`;
-    document.getElementById("visibility").textContent = `${(current.visibility / 1000).toFixed(0)} km`;
+    applyWindVisibilityUnits(current);
+    lastWeatherSnapshot = current;
     document.getElementById("pressure").textContent = `${current.pressure_msl} hPa`;
     document.getElementById("feelsLike").textContent = `${Math.round(current.apparent_temperature)}°C`;
     document.getElementById("cloudCover").textContent = `${current.cloud_cover}%`;
@@ -111,7 +132,7 @@ async function loadLocation(geoLocation, { persist = true } = {}) {
         `<tr><td colspan="5" style="text-align:center; padding:2rem;">Loading...</td></tr>`;
 
     const weather = await getWeather(geoLocation.latitude, geoLocation.longitude);
-    renderWeather(geoLocation, weather);
+    await renderWeather(geoLocation, weather);
 
     if (persist) {
         saveLocation(geoLocation);
@@ -238,6 +259,12 @@ function hideGeoPrompt() {
 
 initPwa(getWatchTarget);
 
+document.getElementById("unitToggle")?.addEventListener("click", () => {
+    toggleUnitSystem();
+    updateUnitToggleUi();
+    if (lastWeatherSnapshot) applyWindVisibilityUnits(lastWeatherSnapshot);
+});
+
 function setupBannerDismiss() {
     const panel = document.getElementById("installPanel");
     const btn = document.getElementById("bannerDismiss");
@@ -257,6 +284,7 @@ window.addEventListener("load", async () => {
     const versionEl = document.getElementById("appVersion");
     if (versionEl) versionEl.textContent = APP_VERSION;
 
+    updateUnitToggleUi();
     setupBannerDismiss();
     renderLocationBar();
 

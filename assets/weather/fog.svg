@@ -1,0 +1,11 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Foggy">
+  <style>
+    @keyframes fog { from { opacity: 0.45; } to { opacity: 0.95; } }
+    .fog-lines { animation: fog 4s ease-in-out infinite alternate; }
+  </style>
+  <g class="fog-lines">
+    <rect x="30" y="78" width="140" height="10" rx="5" fill="#90a4ae" opacity="0.7"/>
+    <rect x="40" y="98" width="120" height="10" rx="5" fill="#b0bec5" opacity="0.8"/>
+    <rect x="35" y="118" width="130" height="10" rx="5" fill="#78909c" opacity="0.6"/>
+  </g>
+</svg>

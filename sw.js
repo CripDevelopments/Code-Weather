@@ -1,5 +1,5 @@
 // Keep in sync with js/version.js when you deploy.
-const APP_VERSION = "2.0.1";
+const APP_VERSION = "2.0.2";
 const CACHE_NAME = `crip-weather-${APP_VERSION}`;
 const CONFIG_KEY = "/__weather_config__";
 
@@ -15,8 +15,18 @@ const STATIC_ASSETS = [
     "./js/locations.js",
     "./js/weather-visuals.js",
     "./js/weather-animations.js",
+    "./js/units.js",
     "./js/pwa.js",
     "./assets/icon.png",
+    "./assets/weather/sunny.svg",
+    "./assets/weather/partly-cloudy.svg",
+    "./assets/weather/cloudy.svg",
+    "./assets/weather/fog.svg",
+    "./assets/weather/drizzle.svg",
+    "./assets/weather/rain.svg",
+    "./assets/weather/heavy-rain.svg",
+    "./assets/weather/snow.svg",
+    "./assets/weather/thunder.svg",
     "./manifest.webmanifest"
 ];
 

@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Heavy rain">
+  <style>
+    @keyframes rain { 0%, 100% { transform: translateY(0); opacity: 1; } 50% { transform: translateY(14px); opacity: 0.45; } }
+    .rain-drops { animation: rain 0.75s linear infinite; }
+  </style>
+  <ellipse cx="100" cy="68" rx="58" ry="32" fill="#90a4ae"/>
+  <ellipse cx="136" cy="62" rx="40" ry="26" fill="#b0bec5"/>
+  <g class="rain-drops">
+    <line x1="50" y1="96" x2="40" y2="146" stroke="#1e88e5" stroke-width="6" stroke-linecap="round"/>
+    <line x1="78" y1="92" x2="68" y2="152" stroke="#1e88e5" stroke-width="6" stroke-linecap="round"/>
+    <line x1="106" y1="96" x2="96" y2="156" stroke="#1e88e5" stroke-width="6" stroke-linecap="round"/>
+    <line x1="134" y1="92" x2="124" y2="152" stroke="#1e88e5" stroke-width="6" stroke-linecap="round"/>
+    <line x1="162" y1="96" x2="152" y2="146" stroke="#1e88e5" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

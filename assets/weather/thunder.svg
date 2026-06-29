@@ -1,0 +1,8 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Thunderstorm">
+  <style>
+    @keyframes flash { 0%, 88%, 100% { opacity: 1; } 90%, 96% { opacity: 0.15; } }
+    .lightning-bolt { animation: flash 2.2s ease-in-out infinite; }
+  </style>
+  <ellipse cx="100" cy="68" rx="56" ry="30" fill="#546e7a"/>
+  <polygon class="lightning-bolt" points="108,92 88,128 104,128 92,168 128,112 110,112" fill="#ffeb3b"/>
+</svg>

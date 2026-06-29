@@ -1,0 +1,14 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Snow">
+  <style>
+    @keyframes snow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
+    .snow-flakes { animation: snow 2.5s ease-in-out infinite; }
+  </style>
+  <ellipse cx="100" cy="72" rx="52" ry="28" fill="#eceff1"/>
+  <g class="snow-flakes">
+    <circle cx="70" cy="110" r="4" fill="#ffffff"/>
+    <circle cx="100" cy="120" r="5" fill="#ffffff"/>
+    <circle cx="130" cy="108" r="4" fill="#ffffff"/>
+    <circle cx="85" cy="145" r="4" fill="#ffffff"/>
+    <circle cx="118" cy="150" r="5" fill="#ffffff"/>
+  </g>
+</svg>

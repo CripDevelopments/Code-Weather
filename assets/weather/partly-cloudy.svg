@@ -1,0 +1,12 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Partly cloudy">
+  <style>
+    @keyframes drift { from { transform: translateX(-6px); } to { transform: translateX(6px); } }
+    .cloud-drift { animation: drift 5s ease-in-out infinite alternate; }
+  </style>
+  <circle cx="130" cy="72" r="28" fill="#ffd54f" opacity="0.95"/>
+  <g class="cloud-drift">
+    <ellipse cx="88" cy="118" rx="52" ry="30" fill="#e3f2fd"/>
+    <ellipse cx="118" cy="108" rx="44" ry="28" fill="#ffffff"/>
+    <ellipse cx="68" cy="108" rx="34" ry="24" fill="#ffffff"/>
+  </g>
+</svg>
