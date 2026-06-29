@@ -237,7 +237,23 @@ function hideGeoPrompt() {
 
 initPwa(getWatchTarget);
 
+function setupBannerDismiss() {
+    const panel = document.getElementById("installPanel");
+    const btn = document.getElementById("bannerDismiss");
+    if (!panel || !btn) return;
+
+    if (localStorage.getItem("cripBannerDismissed") === "1") {
+        panel.classList.add("collapsed");
+    }
+
+    btn.addEventListener("click", () => {
+        panel.classList.add("collapsed");
+        localStorage.setItem("cripBannerDismissed", "1");
+    });
+}
+
 window.addEventListener("load", async () => {
+    setupBannerDismiss();
     renderLocationBar();
 
     const prefs = getPrefs();

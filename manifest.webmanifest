@@ -1,7 +1,7 @@
 {
   "name": "Crip Weather",
   "short_name": "Crip Weather",
-  "description": "Professional weather dashboard — free online or install on your device",
+  "description": "Live weather, 5-day forecasts, saved locations, and optional alerts. Free online or install on your device.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

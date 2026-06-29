@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Crip Weather</title>
-<meta name="description" content="Professional weather dashboard — use free online or install the app on your phone or PC.">
+<meta name="description" content="Crip Weather shows live conditions, a 5-day forecast, and alerts for any city. Free online or install as an app on your phone or PC.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050a14">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,6 +26,9 @@
 <div class="app">
 
     <section class="app-banner" id="installPanel">
+        <button type="button" class="banner-dismiss" id="bannerDismiss" aria-label="Dismiss install banner">
+            <i class="fas fa-times"></i>
+        </button>
         <div class="app-banner-brand">
             <img src="assets/icon.png" alt="" class="banner-icon" width="44" height="44">
             <div>
@@ -33,7 +36,7 @@
                 <p class="app-banner-title">Get Crip Weather on your device</p>
             </div>
         </div>
-        <p class="app-banner-desc">Use the full dashboard in your browser, or install the free app for instant access, offline shell, and weather alerts.</p>
+        <p class="app-banner-desc">Install free for quick access, offline shell, and weather alerts. The website always stays online.</p>
         <div class="app-actions">
             <button id="installBtn" class="action-btn action-btn-primary hidden" type="button">
                 <i class="fas fa-download"></i> Download Free
@@ -82,7 +85,11 @@
         </div>
     </header>
 
-    <nav class="saved-locations" id="savedLocations" aria-label="Saved locations"></nav>
+    <p class="app-intro">Search any city for live weather, a 5-day forecast, and animated conditions. Save your favourite places, get optional alerts, and install the free app for quick access on your phone or PC.</p>
+
+    <nav class="saved-locations-wrap">
+        <div class="saved-locations" id="savedLocations" aria-label="Saved locations"></div>
+    </nav>
 
     <div class="content-grid">
 
