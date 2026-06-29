@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Crip Weather 2080</title>
+<title>Crip Weather</title>
+<meta name="description" content="Professional weather dashboard — use free online or install the app on your phone or PC.">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#050a14">
-<link rel="shortcut icon" href="assets/favicon.ico" type="image/x-icon">
-<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
-<link rel="apple-touch-icon" href="assets/icon.svg">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Crip Weather">
+<link rel="icon" href="assets/icon.png" type="image/png">
+<link rel="apple-touch-icon" href="assets/icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
 <link rel="stylesheet" href="css/main.css">
 </head>
@@ -23,16 +25,54 @@
 
 <div class="app">
 
+    <section class="app-banner" id="installPanel">
+        <div class="app-banner-brand">
+            <img src="assets/icon.png" alt="" class="banner-icon" width="44" height="44">
+            <div>
+                <p class="app-banner-tag">FREE APP · ALWAYS ONLINE</p>
+                <p class="app-banner-title">Get Crip Weather on your device</p>
+            </div>
+        </div>
+        <p class="app-banner-desc">Use the full dashboard in your browser, or install the free app for instant access, offline shell, and weather alerts.</p>
+        <div class="app-actions">
+            <button id="installBtn" class="action-btn action-btn-primary hidden" type="button">
+                <i class="fas fa-download"></i> Download Free
+            </button>
+            <button id="installHelpBtn" class="action-btn" type="button">
+                <i class="fas fa-info-circle"></i> How to Install
+            </button>
+            <button id="notifyBtn" class="action-btn" type="button">
+                <i class="fas fa-bell-slash"></i> Weather Alerts
+            </button>
+        </div>
+        <div class="install-guide hidden" id="installGuide">
+            <p><strong>Android / Chrome:</strong> Tap <em>Download Free</em> or Menu → <em>Install app</em>.</p>
+            <p><strong>iPhone:</strong> Safari → Share → <em>Add to Home Screen</em>.</p>
+            <p><strong>PC:</strong> Click <em>Download Free</em> or the install icon in your address bar.</p>
+        </div>
+    </section>
+
     <header class="top-bar">
         <div class="logo-section">
-            <h1><i class="fas fa-bolt logo-icon"></i> CRIP WEATHER 2080</h1>
-            <p>CLIMATE TERMINAL</p>
+            <img src="assets/icon.png" alt="Crip Weather" class="logo-img" width="48" height="48">
+            <div>
+                <h1>Crip Weather</h1>
+                <p>Professional Weather Dashboard</p>
+            </div>
         </div>
 
-        <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="cityInput" placeholder="Search for a city...">
-            <button id="searchBtn" aria-label="Search"><i class="fas fa-search"></i></button>
+        <div class="search-row">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="cityInput" placeholder="Search city…" autocomplete="off">
+                <button id="searchBtn" class="search-submit" aria-label="Search"><i class="fas fa-search"></i></button>
+            </div>
+            <button id="saveLocationBtn" class="icon-btn" type="button" title="Save location">
+                <i class="fas fa-bookmark"></i>
+            </button>
+            <button id="gpsBtn" class="icon-btn" type="button" title="Use my location">
+                <i class="fas fa-crosshairs"></i>
+            </button>
         </div>
 
         <div class="time-display">
@@ -42,61 +82,63 @@
         </div>
     </header>
 
+    <nav class="saved-locations" id="savedLocations" aria-label="Saved locations"></nav>
+
     <div class="content-grid">
 
         <div class="weather-card">
-            <h2 class="card-title">CURRENT WEATHER</h2>
-            <div class="location" id="location">--</div>
+            <h2 class="card-title">Current Weather</h2>
+            <div class="location" id="location">—</div>
 
             <div class="weather-hero">
-                <div class="temp-main" id="currentTemp">--°C</div>
-                <div class="weather-icon-lg" id="currentWeatherIcon">
-                    <i class="fas fa-cloud-sun"></i>
+                <div class="temp-main" id="currentTemp">—°C</div>
+                <div class="weather-visual-wrap">
+                    <div class="weather-visual" id="currentWeatherIcon" role="img" aria-label="Current conditions"></div>
                 </div>
             </div>
-            <div class="condition" id="currentCondition">--</div>
+            <div class="condition" id="currentCondition">—</div>
 
             <div class="current-details">
                 <div class="detail-item">
                     <i class="fas fa-tint"></i>
                     <div>
                         <div class="detail-label">Humidity</div>
-                        <div class="detail-value" id="humidity">--%</div>
+                        <div class="detail-value" id="humidity">—%</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-wind"></i>
                     <div>
                         <div class="detail-label">Wind Speed</div>
-                        <div class="detail-value" id="windSpeed">-- km/h</div>
+                        <div class="detail-value" id="windSpeed">— km/h</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-eye"></i>
                     <div>
                         <div class="detail-label">Visibility</div>
-                        <div class="detail-value" id="visibility">-- km</div>
+                        <div class="detail-value" id="visibility">— km</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-tachometer-alt"></i>
                     <div>
                         <div class="detail-label">Pressure</div>
-                        <div class="detail-value" id="pressure">-- hPa</div>
+                        <div class="detail-value" id="pressure">— hPa</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-thermometer-half"></i>
                     <div>
                         <div class="detail-label">Feels Like</div>
-                        <div class="detail-value" id="feelsLike">--°C</div>
+                        <div class="detail-value" id="feelsLike">—°C</div>
                     </div>
                 </div>
                 <div class="detail-item">
                     <i class="fas fa-cloud"></i>
                     <div>
                         <div class="detail-label">Cloud Cover</div>
-                        <div class="detail-value" id="cloudCover">--%</div>
+                        <div class="detail-value" id="cloudCover">—%</div>
                     </div>
                 </div>
             </div>
@@ -104,84 +146,57 @@
             <div class="sun-times">
                 <div class="sun-block sunrise-block">
                     <div class="sun-visual"><i class="fas fa-sun"></i></div>
-                    <div class="label">SUNRISE</div>
-                    <div class="value" id="sunrise">--:--</div>
+                    <div class="label">Sunrise</div>
+                    <div class="value" id="sunrise">—:—</div>
                 </div>
                 <div class="sun-block sunset-block">
                     <div class="sun-visual"><i class="fas fa-sun"></i></div>
-                    <div class="label">SUNSET</div>
-                    <div class="value" id="sunset">--:--</div>
+                    <div class="label">Sunset</div>
+                    <div class="value" id="sunset">—:—</div>
                 </div>
             </div>
         </div>
 
         <div class="weather-card forecast-card">
-            <h2 class="card-title">5 DAY FORECAST</h2>
+            <h2 class="card-title">5 Day Forecast</h2>
             <div class="forecast-wrapper">
                 <table class="forecast-table">
                     <thead>
                         <tr>
-                            <th>DAY</th>
-                            <th>CONDITION</th>
-                            <th>TEMP</th>
-                            <th>SUNRISE</th>
-                            <th>SUNSET</th>
+                            <th>Day</th>
+                            <th>Condition</th>
+                            <th>Temp</th>
+                            <th>Sunrise</th>
+                            <th>Sunset</th>
                         </tr>
                     </thead>
-                    <tbody id="forecastBody">
-                    </tbody>
+                    <tbody id="forecastBody"></tbody>
                 </table>
             </div>
         </div>
 
     </div>
 
-    <section class="install-panel" id="installPanel">
-        <p class="install-tag">ALWAYS FREE · HOSTED ONLINE</p>
-        <p class="install-desc">
-            Use Crip Weather in your browser anytime. Optionally download it to your phone or PC for free — no app store, no payment.
-        </p>
-        <div class="app-actions">
-            <button id="installBtn" class="action-btn action-btn-primary hidden" type="button">
-                <i class="fas fa-download"></i> Download Free
-            </button>
-            <button id="installHelpBtn" class="action-btn" type="button">
-                <i class="fas fa-mobile-alt"></i> Install Guide
-            </button>
-            <button id="notifyBtn" class="action-btn" type="button">
-                <i class="fas fa-bell-slash"></i> Enable Alerts
-            </button>
-        </div>
-        <div class="install-guide hidden" id="installGuide">
-            <p><strong>Phone (Android / Chrome):</strong> Tap <em>Download Free</em>, or open the browser menu → <em>Install app</em> / <em>Add to Home screen</em>.</p>
-            <p><strong>iPhone (Safari):</strong> Tap Share → <em>Add to Home Screen</em>. The website stays online — this just adds a free shortcut.</p>
-            <p><strong>PC (Chrome / Edge):</strong> Click <em>Download Free</em>, or use the install icon in the address bar (⊕ or computer icon).</p>
-        </div>
-    </section>
-
     <footer class="footer">
-        <div class="footer-copy">© <span id="year"></span> Crip Developments<br>All rights reserved</div>
-        <div class="footer-version">VERSION 2.0.0</div>
-        <div class="footer-data">DATA BY OPEN-METEO <i class="fas fa-chart-bar"></i></div>
+        <div class="footer-copy">© <span id="year"></span> Crip Developments · All rights reserved</div>
+        <div class="footer-version">v2.0.0</div>
+        <div class="footer-data">Data by Open-Meteo <i class="fas fa-chart-bar"></i></div>
     </footer>
 
 </div>
 
 <div id="locationPrompt" class="location-prompt hidden">
     <div class="prompt-box">
-        <div class="prompt-title">📡 SATELLITE LOCATION REQUEST</div>
+        <img src="assets/icon.png" alt="" class="prompt-logo" width="56" height="56">
+        <div class="prompt-title">Use your location?</div>
         <div class="prompt-text">
-            Enable GPS tracking for automatic weather detection?
+            Allow GPS once to detect your city. We'll remember your choice and saved cities — you won't be asked every visit.
         </div>
-
         <div class="prompt-buttons">
-            <button id="allowLocation">ALLOW</button>
-            <button id="denyLocation">DENY</button>
+            <button id="allowLocation">Allow</button>
+            <button id="denyLocation">Not now</button>
         </div>
-
-        <div class="prompt-footer">
-            Secure geolocation • Used only for weather mapping
-        </div>
+        <div class="prompt-footer">You can always search or save cities manually.</div>
     </div>
 </div>
 

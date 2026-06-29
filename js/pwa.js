@@ -41,8 +41,14 @@ function setupInstallPrompt() {
 
     if (isStandalone && installPanel) {
         installPanel.innerHTML = `
-            <p class="install-tag">APP INSTALLED · STILL FREE ONLINE</p>
-            <p class="install-desc">You're using the downloaded app. The website stays live at the same URL for browser access anytime.</p>
+            <div class="app-banner-brand">
+                <img src="assets/icon.png" alt="" class="banner-icon" width="44" height="44">
+                <div>
+                    <p class="app-banner-tag">APP INSTALLED</p>
+                    <p class="app-banner-title">You're using Crip Weather</p>
+                </div>
+            </div>
+            <p class="app-banner-desc">The website stays live online anytime. Switch locations below or enable weather alerts.</p>
         `;
         return;
     }
@@ -114,7 +120,7 @@ function setupNotifyButton(onLocationUpdate) {
 
         new Notification("Crip Weather alerts enabled", {
             body: `Monitoring ${location.locationName} for changes and warnings.`,
-            icon: "./assets/icon.svg"
+            icon: "./assets/icon.png"
         });
     });
 }
@@ -182,7 +188,7 @@ async function checkAlertsNow(snapshot, prev, config) {
     if (prev && prev.weatherCode !== snapshot.weatherCode) {
         new Notification("Weather changed", {
             body: `${snapshot.locationName}: ${prev.label} → ${snapshot.label}`,
-            icon: "./assets/icon.svg",
+            icon: "./assets/icon.png",
             tag: "weather-change"
         });
     }
@@ -190,7 +196,7 @@ async function checkAlertsNow(snapshot, prev, config) {
     if (isSevereWeather(snapshot.weatherCode) && (!prev || prev.weatherCode !== snapshot.weatherCode)) {
         new Notification("Weather warning", {
             body: `${snapshot.locationName}: ${snapshot.label} (${snapshot.temp}°C)`,
-            icon: "./assets/icon.svg",
+            icon: "./assets/icon.png",
             tag: `severe-${snapshot.weatherCode}`
         });
     }
@@ -201,7 +207,7 @@ async function checkAlertsNow(snapshot, prev, config) {
         notified.add(alert.id);
         new Notification(alert.headline, {
             body: alert.description?.slice(0, 180) || alert.severity,
-            icon: "./assets/icon.svg",
+            icon: "./assets/icon.png",
             tag: `alert-${alert.id}`
         });
     }
@@ -243,7 +249,7 @@ async function syncNotifyButtonState() {
     notifyBtn.classList.toggle("active", active);
     notifyBtn.innerHTML = active
         ? '<i class="fas fa-bell"></i> Alerts On'
-        : '<i class="fas fa-bell-slash"></i> Enable Alerts';
+        : '<i class="fas fa-bell-slash"></i> Weather Alerts';
 
     if (active) scheduleClientChecks();
 }

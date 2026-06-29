@@ -4,9 +4,10 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(10px);
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
     z-index: 999;
+    padding: 20px;
 }
 
 .location-prompt.hidden {
@@ -14,62 +15,67 @@
 }
 
 .prompt-box {
-    width: min(320px, calc(100vw - 32px));
-    margin: 0 16px;
-    padding: 20px;
-    border-radius: 14px;
-
-    background: rgba(6, 18, 42, 0.95);
-    border: 1px solid rgba(0, 212, 255, 0.3);
-    box-shadow: 0 0 40px rgba(0, 180, 255, 0.12);
-    font-family: 'Rajdhani', 'Segoe UI', sans-serif;
-
+    width: min(380px, 100%);
+    padding: 28px 24px 22px;
+    border-radius: 18px;
+    background: rgba(6, 18, 42, 0.96);
+    border: 1px solid rgba(0, 212, 255, 0.28);
+    box-shadow: 0 0 48px rgba(0, 180, 255, 0.12);
     text-align: center;
-    color: #e6f1ff;
+    color: var(--text-primary, #f4f8ff);
+    font-family: 'Inter', sans-serif;
+}
+
+.prompt-logo {
+    margin: 0 auto 14px;
+    display: block;
 }
 
 .prompt-title {
-    font-size: 14px;
-    color: #00d4ff;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary, #f4f8ff);
     margin-bottom: 10px;
-    letter-spacing: 1px;
 }
 
 .prompt-text {
-    font-size: 13px;
-    color: #7aa2ff;
-    margin-bottom: 15px;
+    font-size: 14px;
+    color: var(--text-muted, #8aa4c4);
+    line-height: 1.5;
+    margin-bottom: 18px;
 }
 
 .prompt-buttons {
     display: flex;
     gap: 10px;
-    justify-content: center;
 }
 
 .prompt-buttons button {
     flex: 1;
-    padding: 12px 8px;
-    min-height: 44px;
+    padding: 12px;
+    min-height: 46px;
     border: none;
+    border-radius: 10px;
     cursor: pointer;
-    font-weight: bold;
-    letter-spacing: 1px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
 }
 
 #allowLocation {
-    background: #00d4ff;
+    background: var(--cyan, #00d4ff);
     color: #041018;
 }
 
 #denyLocation {
-    background: rgba(255,255,255,0.1);
-    color: #e6f1ff;
-    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-primary, #f4f8ff);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .prompt-footer {
-    margin-top: 10px;
-    font-size: 10px;
-    opacity: 0.6;
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--text-muted, #8aa4c4);
 }

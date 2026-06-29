@@ -1,6 +1,23 @@
 import { e } from "./consts.js";
 import { getCoords, getWeather, getWeatherInfo } from "./weather.js";
-import { getActiveLocation, initPwa, setActiveLocation, updateWatchLocation } from "./pwa.js";
+import { getWeatherGif } from "./weather-visuals.js";
+import { renderWeatherVisual } from "./weather-animations.js";
+import {
+    geoToApiLocation,
+    getActiveLocation as getSavedActive,
+    getPrefs,
+    getSavedLocations,
+    removeLocation,
+    saveLocation,
+    setActiveLocationId,
+    setPrefs
+} from "./locations.js";
+import {
+    getActiveLocation as getWatchTarget,
+    initPwa,
+    setActiveLocation as setWatchTarget,
+    updateWatchLocation
+} from "./pwa.js";
 
 function getSuffix(day) {
     if (day >= 11 && day <= 13) return "th";
@@ -32,12 +49,13 @@ function renderWeather(location, weather) {
     const current = weather.current;
     const daily = weather.daily;
     const weatherNow = getWeatherInfo(current.weather_code);
+    const visual = getWeatherGif(current.weather_code);
 
     document.getElementById("location").innerHTML =
         `<i class="fas fa-map-marker-alt"></i> ${location.name}, ${location.country} <i class="fas fa-map-marker-alt"></i>`;
 
     document.getElementById("currentTemp").textContent = `${Math.round(current.temperature_2m)}°C`;
-    document.getElementById("currentWeatherIcon").innerHTML = `<i class="fas ${weatherNow.icon}"></i>`;
+    renderWeatherVisual(document.getElementById("currentWeatherIcon"), visual.type);
     document.getElementById("currentCondition").textContent = weatherNow.label;
     document.getElementById("humidity").textContent = `${current.relative_humidity_2m}%`;
     document.getElementById("windSpeed").textContent = `${current.wind_speed_10m} km/h`;
@@ -82,11 +100,82 @@ function renderWeather(location, weather) {
         forecastBody.appendChild(row);
     }
 
-    setActiveLocation(location, weather);
+    setWatchTarget(location, weather);
     updateWatchLocation(location, weather);
+    renderLocationBar();
+}
+
+async function loadLocation(geoLocation, { persist = true } = {}) {
+    document.getElementById("forecastBody").innerHTML =
+        `<tr><td colspan="5" style="text-align:center; padding:2rem;">Loading...</td></tr>`;
+
+    const weather = await getWeather(geoLocation.latitude, geoLocation.longitude);
+    renderWeather(geoLocation, weather);
+
+    if (persist) {
+        saveLocation(geoLocation);
+        document.getElementById("cityInput").value = geoLocation.name;
+    }
+}
+
+async function loadSavedLocation(saved) {
+    await loadLocation(geoToApiLocation(saved), { persist: false });
+    document.getElementById("cityInput").value = saved.name;
+}
+
+function renderLocationBar() {
+    const bar = document.getElementById("savedLocations");
+    const locations = getSavedLocations();
+    const active = getSavedActive();
+
+    if (!locations.length) {
+        bar.innerHTML = `<p class="saved-empty">Search a city and tap <strong>Save</strong> to build your location list.</p>`;
+        return;
+    }
+
+    bar.innerHTML = locations.map((loc) => `
+        <button type="button" class="location-pill${loc.id === active?.id ? " active" : ""}" data-id="${loc.id}">
+            <i class="fas fa-map-marker-alt"></i>
+            <span>${loc.name}</span>
+            <span class="pill-remove" data-remove="${loc.id}" title="Remove" aria-label="Remove ${loc.name}">×</span>
+        </button>
+    `).join("");
+
+    bar.querySelectorAll(".location-pill").forEach((pill) => {
+        pill.addEventListener("click", async (event) => {
+            if (event.target.closest("[data-remove]")) return;
+            const id = pill.dataset.id;
+            const saved = setActiveLocationId(id);
+            if (saved) await loadSavedLocation(saved);
+        });
+    });
+
+    bar.querySelectorAll("[data-remove]").forEach((btn) => {
+        btn.addEventListener("click", async (event) => {
+            event.stopPropagation();
+            const state = removeLocation(btn.dataset.remove);
+            renderLocationBar();
+            const next = state.locations.find((l) => l.id === state.activeId);
+            if (next) await loadSavedLocation(next);
+        });
+    });
 }
 
 document.getElementById("searchBtn").addEventListener("click", searchCity);
+document.getElementById("saveLocationBtn").addEventListener("click", async () => {
+    const city = document.getElementById("cityInput").value.trim();
+    if (!city) return;
+    try {
+        const location = await getCoords(city);
+        saveLocation(location);
+        await loadLocation(location, { persist: false });
+        renderLocationBar();
+    } catch {
+        alert("Could not save that city. Check the name and try again.");
+    }
+});
+
+document.getElementById("gpsBtn").addEventListener("click", requestGpsLocation);
 document.getElementById("cityInput").addEventListener("keydown", (e) => {
     if (e.key === "Enter") searchCity();
 });
@@ -96,11 +185,8 @@ async function searchCity() {
     if (!city) return;
 
     try {
-        document.getElementById("forecastBody").innerHTML =
-            `<tr><td colspan="5" style="text-align:center; padding:2rem;">Loading...</td></tr>`;
         const location = await getCoords(city);
-        const weather = await getWeather(location.latitude, location.longitude);
-        renderWeather(location, weather);
+        await loadLocation(location);
     } catch {
         document.getElementById("forecastBody").innerHTML =
             `<tr><td colspan="5" style="text-align:center; padding:2rem; color:#ff6b6b;">City not found. Try again.</td></tr>`;
@@ -121,35 +207,78 @@ async function getCityFromCoords(lat, lon) {
     );
 }
 
-initPwa(getActiveLocation);
+async function requestGpsLocation() {
+    if (!navigator.geolocation) return;
 
-window.addEventListener("load", () => {
-    const prompt = document.getElementById("locationPrompt");
-    const allowBtn = document.getElementById("allowLocation");
-    const denyBtn = document.getElementById("denyLocation");
+    navigator.geolocation.getCurrentPosition(async (position) => {
+        try {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const city = await getCityFromCoords(lat, lon);
+            const location = await getCoords(city);
+            setPrefs({ geoAllowed: true });
+            await loadLocation(location);
+        } catch (err) {
+            console.error("GPS location failed", err);
+        }
+    }, (err) => {
+        console.warn("Location denied", err);
+        setPrefs({ geoAllowed: false });
+    });
+}
 
-    prompt.classList.remove("hidden");
+function showGeoPrompt() {
+    document.getElementById("locationPrompt").classList.remove("hidden");
+}
 
-    allowBtn.addEventListener("click", () => {
-        prompt.classList.add("hidden");
-        if (!navigator.geolocation) return;
+function hideGeoPrompt() {
+    document.getElementById("locationPrompt").classList.add("hidden");
+}
 
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            try {
-                const city = await getCityFromCoords(position.coords.latitude, position.coords.longitude);
-                document.getElementById("cityInput").value = city;
-                document.getElementById("searchBtn").click();
-            } catch (err) {
-                console.error("Location lookup failed", err);
-            }
-        }, (err) => {
-            console.warn("Location denied", err);
-        });
+initPwa(getWatchTarget);
+
+window.addEventListener("load", async () => {
+    renderLocationBar();
+
+    const prefs = getPrefs();
+    const saved = getSavedActive();
+    const savedList = getSavedLocations();
+
+    if (saved) {
+        hideGeoPrompt();
+        try {
+            await loadSavedLocation(saved);
+            return;
+        } catch (err) {
+            console.warn("Saved location load failed", err);
+        }
+    }
+
+    if (savedList.length) {
+        hideGeoPrompt();
+        await loadSavedLocation(savedList[0]);
+        return;
+    }
+
+    if (prefs.geoPromptSeen) {
+        hideGeoPrompt();
+        document.getElementById("cityInput").value = "London";
+        await searchCity();
+        return;
+    }
+
+    showGeoPrompt();
+
+    document.getElementById("allowLocation").addEventListener("click", async () => {
+        setPrefs({ geoPromptSeen: true, geoAllowed: true });
+        hideGeoPrompt();
+        await requestGpsLocation();
     });
 
-    denyBtn.addEventListener("click", () => {
-        prompt.classList.add("hidden");
+    document.getElementById("denyLocation").addEventListener("click", async () => {
+        setPrefs({ geoPromptSeen: true, geoAllowed: false });
+        hideGeoPrompt();
         document.getElementById("cityInput").value = "London";
-        document.getElementById("searchBtn").click();
+        await searchCity();
     });
 });

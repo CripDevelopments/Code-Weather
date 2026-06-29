@@ -1,4 +1,4 @@
-const CACHE_NAME = "crip-weather-v2";
+const CACHE_NAME = "crip-weather-v3";
 const CONFIG_KEY = "/__weather_config__";
 
 const STATIC_ASSETS = [
@@ -9,8 +9,11 @@ const STATIC_ASSETS = [
     "./js/main.js",
     "./js/consts.js",
     "./js/weather.js",
+    "./js/locations.js",
+    "./js/weather-visuals.js",
+    "./js/weather-animations.js",
     "./js/pwa.js",
-    "./assets/icon.svg",
+    "./assets/icon.png",
     "./manifest.webmanifest"
 ];
 
@@ -124,8 +127,8 @@ async function fetchOfficialAlerts(lat, lon) {
 
 async function showNotification(title, options = {}) {
     await self.registration.showNotification(title, {
-        icon: "./assets/icon.svg",
-        badge: "./assets/icon.svg",
+        icon: "./assets/icon.png",
+        badge: "./assets/icon.png",
         vibrate: [120, 60, 120],
         ...options
     });
