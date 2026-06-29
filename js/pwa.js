@@ -1,35 +1,186 @@
 import { buildSnapshot, getOfficialAlerts, isSevereWeather } from "./weather.js";
+import { APP_VERSION } from "./version.js";
 
 const CONFIG_KEY = "/__weather_config__";
-const CHECK_INTERVAL_MS = 30 * 60 * 1000;
+const CHECK_INTERVAL_MS = 15 * 60 * 1000;
 
 let deferredInstallPrompt = null;
 let checkTimer = null;
+let swRegistration = null;
+let isRefreshing = false;
+
+const ICON_URL = new URL("./assets/icon.png", window.location.href).href;
 
 export async function initPwa(onLocationUpdate) {
-    registerServiceWorker();
+    await registerServiceWorker();
     setupInstallPrompt();
     setupNotifyButton(onLocationUpdate);
+    setupAppUpdates();
     await syncNotifyButtonState();
+
+    const config = await getWatchConfig();
+    if (config.alertsEnabled && Notification.permission === "granted") {
+        await registerBackgroundSync();
+        scheduleClientChecks();
+    }
 }
 
-function registerServiceWorker() {
-    if (!("serviceWorker" in navigator)) return;
+async function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return null;
 
-    window.addEventListener("load", async () => {
-        try {
-            const reg = await navigator.serviceWorker.register("./sw.js");
-            if ("periodicSync" in reg) {
-                try {
-                    await reg.periodicSync.register("weather-check", { minInterval: CHECK_INTERVAL_MS });
-                } catch {
-                    // Permission or browser support may block periodic sync
-                }
+    try {
+        swRegistration = await navigator.serviceWorker.register(`./sw.js?v=${APP_VERSION}`, {
+            updateViaCache: "none"
+        });
+        await navigator.serviceWorker.ready;
+
+        setupUpdateListeners(swRegistration);
+        checkForAppUpdate();
+
+        if ("periodicSync" in swRegistration) {
+            try {
+                await swRegistration.periodicSync.register("weather-check", {
+                    minInterval: CHECK_INTERVAL_MS
+                });
+            } catch {
+                // Periodic sync needs installed PWA + permission on some browsers
             }
-        } catch (err) {
-            console.warn("Service worker registration failed", err);
         }
+
+        return swRegistration;
+    } catch (err) {
+        console.warn("Service worker registration failed", err);
+        return null;
+    }
+}
+
+async function getSwRegistration() {
+    if (swRegistration) return swRegistration;
+    if (!("serviceWorker" in navigator)) return null;
+    return navigator.serviceWorker.ready;
+}
+
+function setupAppUpdates() {
+    document.getElementById("applyUpdateBtn")?.addEventListener("click", applyPendingUpdate);
+
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (isRefreshing) return;
+        isRefreshing = true;
+        window.location.reload();
     });
+
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible") checkForAppUpdate();
+    });
+
+    window.addEventListener("focus", checkForAppUpdate);
+}
+
+function setupUpdateListeners(reg) {
+    reg.addEventListener("updatefound", () => {
+        const worker = reg.installing;
+        if (!worker) return;
+
+        worker.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+                showUpdateBanner();
+            }
+        });
+    });
+
+    if (reg.waiting) showUpdateBanner();
+}
+
+async function checkForAppUpdate() {
+    const reg = await getSwRegistration();
+    reg?.update();
+}
+
+function showUpdateBanner() {
+    document.getElementById("updateBanner")?.classList.remove("hidden");
+}
+
+function hideUpdateBanner() {
+    document.getElementById("updateBanner")?.classList.add("hidden");
+}
+
+function applyPendingUpdate() {
+    const waiting = swRegistration?.waiting;
+    if (!waiting) {
+        hideUpdateBanner();
+        window.location.reload();
+        return;
+    }
+
+    waiting.postMessage({ type: "SKIP_WAITING" });
+    hideUpdateBanner();
+}
+
+function isStandaloneApp() {
+    return (
+        window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true
+    );
+}
+
+function isIos() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+        (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+}
+
+function notificationsSupported() {
+    return "Notification" in window && "serviceWorker" in navigator;
+}
+
+async function showAppNotification(title, options = {}) {
+    const reg = await getSwRegistration();
+    const payload = {
+        icon: ICON_URL,
+        badge: ICON_URL,
+        vibrate: [100, 50, 100],
+        ...options
+    };
+
+    if (reg?.showNotification) {
+        await reg.showNotification(title, payload);
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        new Notification(title, { icon: ICON_URL, ...options });
+    }
+}
+
+function showNotifyHint(message) {
+    const hint = document.getElementById("notifyHint");
+    if (!hint) return;
+    hint.textContent = message;
+    hint.classList.remove("hidden");
+}
+
+function hideNotifyHint() {
+    document.getElementById("notifyHint")?.classList.add("hidden");
+}
+
+async function registerBackgroundSync() {
+    const reg = await getSwRegistration();
+    if (!reg) return;
+
+    if ("sync" in reg) {
+        try {
+            await reg.sync.register("weather-check");
+        } catch {
+            // Background sync may require installed PWA
+        }
+    }
+
+    if ("periodicSync" in reg) {
+        try {
+            await reg.periodicSync.register("weather-check", { minInterval: CHECK_INTERVAL_MS });
+        } catch {
+            // Periodic sync permission may be required
+        }
+    }
 }
 
 function setupInstallPrompt() {
@@ -37,19 +188,25 @@ function setupInstallPrompt() {
     const installPanel = document.getElementById("installPanel");
     const installGuide = document.getElementById("installGuide");
     const installHelpBtn = document.getElementById("installHelpBtn");
-    const isStandalone = window.matchMedia("(display-mode: standalone)").matches;
 
-    if (isStandalone && installPanel) {
-        installPanel.innerHTML = `
-            <div class="app-banner-brand">
+    if (isStandaloneApp() && installPanel) {
+        const brand = installPanel.querySelector(".app-banner-brand");
+        const desc = installPanel.querySelector(".app-banner-desc");
+        const actions = installPanel.querySelector(".app-actions");
+        if (brand) {
+            brand.innerHTML = `
                 <img src="assets/icon.png" alt="" class="banner-icon" width="44" height="44">
                 <div>
                     <p class="app-banner-tag">APP INSTALLED</p>
-                    <p class="app-banner-title">You're using Crip Weather</p>
+                    <p class="app-banner-title">Crip Weather is on your device</p>
                 </div>
-            </div>
-            <p class="app-banner-desc">The website stays live online anytime. Switch locations below or enable weather alerts.</p>
-        `;
+            `;
+        }
+        if (desc) {
+            desc.textContent = "Tap the bell icon in the header to enable weather alerts for your saved locations.";
+        }
+        if (actions) actions.classList.add("hidden");
+        installPanel.querySelector(".banner-dismiss")?.classList.add("hidden");
         return;
     }
 
@@ -90,37 +247,51 @@ function setupNotifyButton(onLocationUpdate) {
         if (config.alertsEnabled) {
             await disableAlerts();
             await syncNotifyButtonState();
+            hideNotifyHint();
             return;
         }
 
-        if (!("Notification" in window)) {
-            alert("Notifications are not supported in this browser.");
+        if (!notificationsSupported()) {
+            showNotifyHint("Notifications are not supported in this browser.");
             return;
         }
 
-        const permission = await Notification.requestPermission();
+        if (isIos() && !isStandaloneApp()) {
+            showNotifyHint("On iPhone, add Crip Weather to your Home Screen first, then open the app and tap the bell to enable alerts.");
+            return;
+        }
+
+        await registerServiceWorker();
+
+        let permission = Notification.permission;
+        if (permission === "default") {
+            permission = await Notification.requestPermission();
+        }
+
         if (permission !== "granted") {
+            showNotifyHint("Notifications blocked. Allow them in your browser or phone settings, then tap the bell again.");
             await syncNotifyButtonState();
             return;
         }
 
         const location = onLocationUpdate?.();
         if (!location) {
-            alert("Search for a city first so alerts know which location to monitor.");
+            showNotifyHint("Search or select a city first so alerts know which location to monitor.");
             return;
         }
 
         await enableAlerts(location);
+        await registerBackgroundSync();
         await syncNotifyButtonState();
         scheduleClientChecks();
+        hideNotifyHint();
 
-        if (navigator.serviceWorker?.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: "CHECK_WEATHER" });
-        }
+        const reg = await getSwRegistration();
+        reg?.active?.postMessage({ type: "CHECK_WEATHER" });
 
-        new Notification("Crip Weather alerts enabled", {
+        await showAppNotification("Weather alerts enabled", {
             body: `Monitoring ${location.locationName} for changes and warnings.`,
-            icon: "./assets/icon.png"
+            tag: "alerts-enabled"
         });
     });
 }
@@ -162,7 +333,6 @@ export async function updateWatchLocation(location, weather) {
 
     const previousSnapshot = config.lastSnapshot;
     const snapshot = buildSnapshot(location, weather);
-
     const notifiedAlertIds = await checkAlertsNow(snapshot, previousSnapshot, config);
 
     await saveWatchConfig({
@@ -181,23 +351,22 @@ export async function updateWatchLocation(location, weather) {
 async function checkAlertsNow(snapshot, prev, config) {
     const notified = new Set(config.notifiedAlertIds || []);
 
-    if (!("Notification" in window) || Notification.permission !== "granted") {
+    if (Notification.permission !== "granted") {
         return [...notified];
     }
 
     if (prev && prev.weatherCode !== snapshot.weatherCode) {
-        new Notification("Weather changed", {
+        await showAppNotification("Weather changed", {
             body: `${snapshot.locationName}: ${prev.label} → ${snapshot.label}`,
-            icon: "./assets/icon.png",
             tag: "weather-change"
         });
     }
 
     if (isSevereWeather(snapshot.weatherCode) && (!prev || prev.weatherCode !== snapshot.weatherCode)) {
-        new Notification("Weather warning", {
+        await showAppNotification("Weather warning", {
             body: `${snapshot.locationName}: ${snapshot.label} (${snapshot.temp}°C)`,
-            icon: "./assets/icon.png",
-            tag: `severe-${snapshot.weatherCode}`
+            tag: `severe-${snapshot.weatherCode}`,
+            requireInteraction: true
         });
     }
 
@@ -205,10 +374,10 @@ async function checkAlertsNow(snapshot, prev, config) {
     for (const alert of alerts) {
         if (!alert.id || notified.has(alert.id)) continue;
         notified.add(alert.id);
-        new Notification(alert.headline, {
+        await showAppNotification(alert.headline, {
             body: alert.description?.slice(0, 180) || alert.severity,
-            icon: "./assets/icon.png",
-            tag: `alert-${alert.id}`
+            tag: `alert-${alert.id}`,
+            requireInteraction: true
         });
     }
 
@@ -217,10 +386,9 @@ async function checkAlertsNow(snapshot, prev, config) {
 
 function scheduleClientChecks() {
     clearClientChecks();
-    checkTimer = setInterval(() => {
-        if (navigator.serviceWorker?.controller) {
-            navigator.serviceWorker.controller.postMessage({ type: "CHECK_WEATHER" });
-        }
+    checkTimer = setInterval(async () => {
+        const reg = await getSwRegistration();
+        reg?.active?.postMessage({ type: "CHECK_WEATHER" });
     }, CHECK_INTERVAL_MS);
 
     document.addEventListener("visibilitychange", onVisibilityCheck);
@@ -232,10 +400,12 @@ function clearClientChecks() {
     document.removeEventListener("visibilitychange", onVisibilityCheck);
 }
 
-function onVisibilityCheck() {
-    if (document.visibilityState === "visible" && navigator.serviceWorker?.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: "CHECK_WEATHER" });
-    }
+async function onVisibilityCheck() {
+    if (document.visibilityState !== "visible") return;
+    const config = await getWatchConfig();
+    if (!config.alertsEnabled) return;
+    const reg = await getSwRegistration();
+    reg?.active?.postMessage({ type: "CHECK_WEATHER" });
 }
 
 async function syncNotifyButtonState() {
@@ -247,9 +417,10 @@ async function syncNotifyButtonState() {
     const active = config.alertsEnabled && permission === "granted";
 
     notifyBtn.classList.toggle("active", active);
+    notifyBtn.title = active ? "Weather alerts on — tap to disable" : "Enable weather alerts";
     notifyBtn.innerHTML = active
-        ? '<i class="fas fa-bell"></i> Alerts On'
-        : '<i class="fas fa-bell-slash"></i> Weather Alerts';
+        ? '<i class="fas fa-bell"></i>'
+        : '<i class="fas fa-bell-slash"></i>';
 
     if (active) scheduleClientChecks();
 }

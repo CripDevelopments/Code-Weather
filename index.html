@@ -44,10 +44,8 @@
             <button id="installHelpBtn" class="action-btn" type="button">
                 <i class="fas fa-info-circle"></i> How to Install
             </button>
-            <button id="notifyBtn" class="action-btn" type="button">
-                <i class="fas fa-bell-slash"></i> Weather Alerts
-            </button>
         </div>
+        <p class="notify-hint hidden" id="notifyHint"></p>
         <div class="install-guide hidden" id="installGuide">
             <p><strong>Android / Chrome:</strong> Tap <em>Download Free</em> or Menu → <em>Install app</em>.</p>
             <p><strong>iPhone:</strong> Safari → Share → <em>Add to Home Screen</em>.</p>
@@ -76,6 +74,9 @@
             <button id="gpsBtn" class="icon-btn" type="button" title="Use my location">
                 <i class="fas fa-crosshairs"></i>
             </button>
+            <button id="notifyBtn" class="icon-btn notify-btn" type="button" title="Weather alerts">
+                <i class="fas fa-bell-slash"></i>
+            </button>
         </div>
 
         <div class="time-display">
@@ -84,6 +85,11 @@
             <div class="day" id="dayDisplay"></div>
         </div>
     </header>
+
+    <div id="updateBanner" class="update-banner hidden" role="status">
+        <span>A new version of Crip Weather is ready.</span>
+        <button type="button" id="applyUpdateBtn" class="update-banner-btn">Update now</button>
+    </div>
 
     <p class="app-intro">Search any city for live weather, a 5-day forecast, and animated conditions. Save your favourite places, get optional alerts, and install the free app for quick access on your phone or PC.</p>
 
@@ -186,7 +192,7 @@
 
     <footer class="footer">
         <div class="footer-copy">© <span id="year"></span> Crip Developments · All rights reserved</div>
-        <div class="footer-version">v2.0.0</div>
+        <div class="footer-version">v<span id="appVersion">2.0.1</span></div>
         <div class="footer-data">Data by Open-Meteo <i class="fas fa-chart-bar"></i></div>
     </footer>
 

@@ -1,4 +1,5 @@
 import { e } from "./consts.js";
+import { APP_VERSION } from "./version.js";
 import { getCoords, getWeather, getWeatherInfo } from "./weather.js";
 import { getWeatherGif } from "./weather-visuals.js";
 import { renderWeatherVisual } from "./weather-animations.js";
@@ -253,6 +254,9 @@ function setupBannerDismiss() {
 }
 
 window.addEventListener("load", async () => {
+    const versionEl = document.getElementById("appVersion");
+    if (versionEl) versionEl.textContent = APP_VERSION;
+
     setupBannerDismiss();
     renderLocationBar();
 

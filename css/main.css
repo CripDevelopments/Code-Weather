@@ -147,16 +147,23 @@ body {
 /* Header */
 .top-bar {
     display: grid;
-    grid-template-columns: 1fr minmax(280px, 1.4fr) auto;
+    grid-template-columns: auto 1fr auto;
+    grid-template-areas: "brand search clock";
     align-items: center;
-    gap: 20px;
+    gap: 16px 20px;
     margin-bottom: 18px;
 }
 
 .logo-section {
+    grid-area: brand;
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+}
+
+.logo-section > div {
+    min-width: 0;
 }
 
 .logo-section h1 {
@@ -175,9 +182,11 @@ body {
 }
 
 .search-row {
+    grid-area: search;
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
 }
 
 .search-box {
@@ -245,7 +254,16 @@ body {
     background: rgba(0, 212, 255, 0.08);
 }
 
+.icon-btn.active,
+.notify-btn.active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(0, 212, 255, 0.12);
+    box-shadow: 0 0 16px rgba(0, 212, 255, 0.2);
+}
+
 .time-display {
+    grid-area: clock;
     text-align: right;
 }
 
@@ -274,6 +292,55 @@ body {
     max-width: 720px;
     margin: -6px 0 18px;
     padding: 0 2px;
+}
+
+.notify-hint {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 180, 0, 0.1);
+    border: 1px solid rgba(255, 200, 0, 0.25);
+    color: #ffd88a;
+    font-size: 13px;
+    line-height: 1.45;
+    text-align: left;
+}
+
+.app-actions.hidden {
+    display: none;
+}
+
+/* Update banner */
+.update-banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 10px 14px;
+    margin: 0 0 16px;
+    padding: 12px 16px;
+    border-radius: 12px;
+    background: rgba(0, 212, 255, 0.1);
+    border: 1px solid rgba(0, 212, 255, 0.35);
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.update-banner.hidden {
+    display: none;
+}
+
+.update-banner-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 999px;
+    background: var(--cyan);
+    color: #041018;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    min-height: 36px;
 }
 
 /* Saved locations */
@@ -753,18 +820,18 @@ body {
     color: var(--cyan);
 }
 
-/* Responsive */
 @media (max-width: 1100px) {
     .top-bar {
         grid-template-columns: 1fr;
+        grid-template-areas:
+            "brand"
+            "search"
+            "clock";
+        text-align: center;
     }
 
     .logo-section {
         justify-content: center;
-    }
-
-    .search-row {
-        width: 100%;
     }
 
     .time-display {
@@ -781,221 +848,187 @@ body {
         display: flex;
         flex-direction: column;
         width: 100%;
+        max-width: 100vw;
         padding: 0;
         padding-bottom: max(12px, env(safe-area-inset-bottom));
+        overflow-x: hidden;
     }
 
     .app-banner {
         order: 99;
-        margin: 12px 14px 0;
-        padding: 16px 40px 16px 16px;
+        margin: 10px 12px 0;
+        padding: 14px 36px 14px 14px;
         border-radius: 14px;
     }
 
     .app-banner.collapsed {
         margin: 0;
+        padding: 0;
     }
 
     .app-banner-desc {
-        font-size: 13px;
-        margin-bottom: 12px;
+        font-size: 12px;
+        margin-bottom: 0;
     }
 
     .app-banner-title {
-        font-size: 17px;
+        font-size: 16px;
     }
 
     .banner-icon {
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
     }
 
     .top-bar {
         order: 1;
-        display: grid;
-        grid-template-columns: 1fr auto;
-        grid-template-rows: auto auto;
-        gap: 12px 14px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "brand clock"
+            "search search";
+        gap: 10px 12px;
         margin: 0;
-        padding: max(12px, env(safe-area-inset-top)) 14px 14px;
-        background: rgba(4, 12, 28, 0.6);
+        padding: max(10px, env(safe-area-inset-top)) 12px 12px;
+        background: rgba(4, 12, 28, 0.85);
         border-bottom: 1px solid rgba(0, 180, 255, 0.1);
     }
 
-    .top-bar .logo-section {
-        grid-column: 1;
-        grid-row: 1;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        text-align: left;
+    .logo-section {
         justify-content: flex-start;
+        gap: 8px;
     }
 
     .logo-img {
-        width: 42px;
-        height: 42px;
-        flex-shrink: 0;
+        width: 38px;
+        height: 38px;
     }
 
     .logo-section h1 {
-        font-size: 20px;
-        line-height: 1.1;
+        font-size: 17px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .logo-section p {
-        font-size: 11px;
-        margin-top: 1px;
+        display: none;
     }
 
     .time-display {
-        grid-column: 2;
-        grid-row: 1;
         text-align: right;
-        align-self: center;
+        min-width: 0;
     }
 
     .time-display .time {
-        font-size: 22px;
+        font-size: 20px;
+        white-space: nowrap;
     }
 
     .time-display .date,
     .time-display .day {
-        font-size: 11px;
+        font-size: 10px;
+        white-space: nowrap;
     }
 
     .search-row {
-        grid-column: 1 / -1;
-        display: flex;
-        align-items: stretch;
-        gap: 8px;
         width: 100%;
+        flex-wrap: nowrap;
     }
 
     .search-box {
         flex: 1;
         min-width: 0;
-        border-radius: 14px;
     }
 
     .search-box input {
-        padding: 14px 12px 14px 40px;
+        padding: 12px 10px 12px 36px;
         font-size: 16px;
     }
 
-    .search-submit {
-        min-width: 52px;
-        min-height: 52px;
-    }
-
+    .search-submit,
     .icon-btn {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+        flex-shrink: 0;
     }
 
     .saved-locations-wrap {
-        order: 2;
+        order: 3;
         margin: 0;
-        padding: 0 14px 12px;
+        padding: 0 12px 10px;
+    }
+
+    .update-banner {
+        order: 2;
+        margin: 0 12px 10px;
+        font-size: 13px;
+    }
+
+    .app-intro {
+        display: none;
     }
 
     .saved-empty {
-        font-size: 12px;
-        padding: 4px 0;
+        font-size: 11px;
+        padding: 2px 0;
     }
 
     .content-grid {
-        order: 3;
-        gap: 12px;
-        padding: 0 14px;
+        order: 4;
+        gap: 10px;
+        padding: 0 12px;
     }
 
     .weather-card {
-        padding: 18px 16px;
-        border-radius: 16px;
-    }
-
-    .card-title {
-        font-size: 12px;
-        margin-bottom: 12px;
+        padding: 16px 14px;
+        border-radius: 14px;
     }
 
     .location {
-        font-size: 16px;
-        margin-bottom: 12px;
-        flex-wrap: wrap;
-        gap: 6px;
-        line-height: 1.35;
+        font-size: 15px;
+        gap: 5px;
     }
 
-    .location i {
-        font-size: 12px;
+    .location i:last-child {
+        display: none;
     }
 
     .weather-hero {
         flex-direction: column;
-        gap: 4px;
-        margin-bottom: 0;
+        gap: 2px;
     }
 
     .temp-main {
-        font-size: 72px;
-        letter-spacing: -3px;
+        font-size: 64px;
     }
 
     .weather-visual-wrap {
-        width: 110px;
-        height: 110px;
-        margin: 4px 0 8px;
-    }
-
-    .condition {
-        font-size: 16px;
-        margin-bottom: 16px;
+        width: 100px;
+        height: 100px;
     }
 
     .current-details {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
     }
 
     .detail-item {
-        padding: 12px 10px;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 6px;
-        text-align: left;
-    }
-
-    .detail-item i {
-        font-size: 18px;
-    }
-
-    .detail-label {
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
+        padding: 10px 8px;
+        min-width: 0;
     }
 
     .detail-value {
-        font-size: 17px;
+        font-size: 15px;
+        word-break: break-word;
     }
 
     .sun-times {
-        gap: 10px;
-        padding-top: 14px;
+        gap: 8px;
+        padding-top: 12px;
     }
 
-    .sun-block {
-        padding: 14px 8px;
-    }
-
-    .sun-block .value {
-        font-size: 15px;
-    }
-
-    /* Forecast cards */
     .forecast-wrapper {
         overflow: visible;
     }
@@ -1011,101 +1044,63 @@ body {
     .forecast-table tbody tr {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 4px 12px;
-        margin-bottom: 10px;
-        padding: 14px;
+        gap: 6px 10px;
+        margin-bottom: 8px;
+        padding: 12px;
         background: rgba(0, 25, 55, 0.45);
-        border: 1px solid rgba(0, 180, 255, 0.12);
-        border-radius: 14px;
-    }
-
-    .forecast-table tbody tr:last-child {
-        margin-bottom: 0;
+        border: 1px solid rgba(0, 180, 255, 0.1);
+        border-radius: 12px;
     }
 
     .forecast-table td {
         display: block;
         padding: 0;
         border: none;
-        font-size: 14px;
+        font-size: 13px;
+        min-width: 0;
     }
 
     .forecast-table td::before {
         display: block;
         content: attr(data-label);
-        font-size: 10px;
+        font-size: 9px;
         font-weight: 700;
         color: var(--cyan-dim);
         text-transform: uppercase;
-        letter-spacing: 0.6px;
-        margin-bottom: 4px;
+        letter-spacing: 0.5px;
+        margin-bottom: 3px;
     }
 
     .forecast-table td[data-label="Day"] {
         grid-column: 1 / -1;
         text-align: center;
-        padding-bottom: 10px;
-        margin-bottom: 6px;
-        border-bottom: 1px solid rgba(0, 180, 255, 0.12);
+        padding-bottom: 8px;
+        margin-bottom: 4px;
+        border-bottom: 1px solid rgba(0, 180, 255, 0.1);
     }
 
     .forecast-table td[data-label="Day"]::before {
         display: none;
     }
 
-    .forecast-table td[data-label="Day"] .day-name {
-        font-size: 17px;
-        font-weight: 700;
-    }
-
     .forecast-table td[data-label="Condition"] {
         grid-column: 1 / -1;
-        margin-bottom: 4px;
     }
 
     .forecast-condition {
-        justify-content: flex-start;
-    }
-
-    .forecast-table td[data-label="Temp"] .forecast-temp,
-    .forecast-table td[data-label="Temp"] {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--text-primary);
-    }
-
-    .app-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-
-    .app-actions .action-btn-primary {
-        grid-column: 1 / -1;
-    }
-
-    .action-btn {
-        width: 100%;
-        justify-content: center;
-        min-height: 46px;
-        font-size: 13px;
-        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 6px;
     }
 
     .footer {
-        order: 4;
-        grid-template-columns: 1fr;
-        gap: 8px;
-        text-align: center;
-        margin-top: 16px;
-        padding: 0 14px 8px;
-        font-size: 11px;
+        order: 5;
+        margin-top: 12px;
+        padding: 0 12px 8px;
     }
 
-    .footer-copy,
-    .footer-version,
-    .footer-data {
-        justify-self: center;
+    .notify-hint {
+        font-size: 12px;
+        margin-top: 8px;
     }
 
     .grid-overlay {
@@ -1113,40 +1108,34 @@ body {
     }
 
     .location-prompt {
-        padding: max(16px, env(safe-area-inset-top)) 16px max(16px, env(safe-area-inset-bottom));
+        padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
         align-items: flex-end;
-    }
-
-    .prompt-box {
-        border-radius: 20px 20px 16px 16px;
-        margin-bottom: 0;
     }
 }
 
 @media (max-width: 380px) {
     .logo-section h1 {
+        font-size: 15px;
+        max-width: 140px;
+    }
+
+    .time-display .time {
         font-size: 18px;
     }
 
     .temp-main {
-        font-size: 62px;
+        font-size: 56px;
     }
 
-    .weather-visual-wrap {
-        width: 96px;
-        height: 96px;
+    .search-row {
+        gap: 6px;
     }
 
-    .current-details {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-    }
-
-    .detail-item {
-        padding: 10px 8px;
-    }
-
-    .detail-value {
-        font-size: 15px;
+    .search-submit,
+    .icon-btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
     }
 }

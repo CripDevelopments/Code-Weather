@@ -1,4 +1,6 @@
-const CACHE_NAME = "crip-weather-v3";
+// Keep in sync with js/version.js when you deploy.
+const APP_VERSION = "2.0.1";
+const CACHE_NAME = `crip-weather-${APP_VERSION}`;
 const CONFIG_KEY = "/__weather_config__";
 
 const STATIC_ASSETS = [
@@ -8,6 +10,7 @@ const STATIC_ASSETS = [
     "./css/location.css",
     "./js/main.js",
     "./js/consts.js",
+    "./js/version.js",
     "./js/weather.js",
     "./js/locations.js",
     "./js/weather-visuals.js",
@@ -30,15 +33,18 @@ const WEATHER_LABELS = {
 
 self.addEventListener("install", (event) => {
     event.waitUntil(
-        caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)).then(() => self.skipWaiting())
+        caches.open(CACHE_NAME)
+            .then((cache) => cache.addAll(STATIC_ASSETS))
     );
 });
 
 self.addEventListener("activate", (event) => {
     event.waitUntil(
-        caches.keys().then((keys) =>
-            Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
-        ).then(() => self.clients.claim())
+        caches.keys()
+            .then((keys) => Promise.all(
+                keys.filter((k) => k.startsWith("crip-weather-") && k !== CACHE_NAME).map((k) => caches.delete(k))
+            ))
+            .then(() => self.clients.claim())
     );
 });
 
@@ -47,30 +53,70 @@ self.addEventListener("fetch", (event) => {
     if (request.method !== "GET") return;
 
     const url = new URL(request.url);
-    const isApi = url.hostname.includes("open-meteo.com") ||
-        url.hostname.includes("openstreetmap.org") ||
-        url.hostname.includes("weather.gov");
-
-    if (isApi) {
+    if (url.origin !== self.location.origin) {
         event.respondWith(fetch(request).catch(() => caches.match(request)));
         return;
     }
 
+    const isDocument = request.mode === "navigate" ||
+        request.destination === "document" ||
+        url.pathname.endsWith(".html") ||
+        url.pathname.endsWith("/");
+
+    const isStatic = /\.(js|css|png|svg|webmanifest)$/i.test(url.pathname);
+
+    if (isDocument) {
+        event.respondWith(networkFirst(request));
+        return;
+    }
+
+    if (isStatic) {
+        event.respondWith(staleWhileRevalidate(request));
+        return;
+    }
+
     event.respondWith(
-        caches.match(request).then((cached) =>
-            cached || fetch(request).then((response) => {
-                if (response.ok && url.origin === self.location.origin) {
-                    const copy = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-                }
-                return response;
-            }).catch(() => cached)
-        )
+        caches.match(request).then((cached) => cached || fetch(request))
     );
 });
 
+async function networkFirst(request) {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+        const response = await fetch(request);
+        if (response.ok) cache.put(request, response.clone());
+        return response;
+    } catch {
+        const cached = await cache.match(request);
+        if (cached) return cached;
+        return cache.match("./index.html");
+    }
+}
+
+async function staleWhileRevalidate(request) {
+    const cache = await caches.open(CACHE_NAME);
+    const cached = await cache.match(request);
+
+    const networkPromise = fetch(request).then((response) => {
+        if (response.ok) cache.put(request, response.clone());
+        return response;
+    });
+
+    return cached || networkPromise;
+}
+
 self.addEventListener("message", (event) => {
     if (event.data?.type === "CHECK_WEATHER") {
+        event.waitUntil(runWeatherCheck());
+    }
+
+    if (event.data?.type === "SKIP_WAITING") {
+        self.skipWaiting();
+    }
+});
+
+self.addEventListener("sync", (event) => {
+    if (event.tag === "weather-check") {
         event.waitUntil(runWeatherCheck());
     }
 });
@@ -126,9 +172,10 @@ async function fetchOfficialAlerts(lat, lon) {
 }
 
 async function showNotification(title, options = {}) {
+    const icon = new URL("assets/icon.png", self.registration.scope).href;
     await self.registration.showNotification(title, {
-        icon: "./assets/icon.png",
-        badge: "./assets/icon.png",
+        icon,
+        badge: icon,
         vibrate: [120, 60, 120],
         ...options
     });
